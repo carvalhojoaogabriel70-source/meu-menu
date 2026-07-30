@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XD Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: transparent;
+            --bg-menu: #08080c;
+            --bg-card: #0d0d13;
+            --bg-hover: rgba(168, 85, 247, 0.04);
+            --accent: #a855f7;
+            --accent-rgb: 168, 85, 247;
+            --glow: rgba(168, 85, 247, 0.4);
+            --border: rgba(168, 85, 247, 0.12);
+            --text-title: #ffffff;
+            --text-body: #cbd5e1;
+            --text-muted: #64748b;
+            --switch-off: #12111a;
+            --transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+        }
+        body {
+            background: transparent;
+            color: var(--text-body);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .menu-container {
+            width: 750px;
+            height: 480px;
+            background: var(--bg-menu);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: none;
+            overflow: hidden;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.85), 0 0 40px rgba(var(--accent-rgb), 0.05);
+        }
+        .menu-container.visible {
+            display: flex;
+        }
+        .sidebar {
+            width: 180px;
+            background: rgba(5, 5, 8, 0.85);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 12px;
+            gap: 6px;
+        }
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .logo .xd {
+            font-size: 20px; font-weight: 900; font-style: italic;
+            background: linear-gradient(135deg, #fff 40%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+        .logo .label {
+            font-size: 11px; font-weight: 700; color: var(--accent);
+            letter-spacing: 1px; margin-left: 4px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 9px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+        .tab-btn:hover {
+            color: var(--text-title);
+            background: var(--bg-hover);
+            padding-left: 16px;
+        }
+        .tab-btn.active {
+            color: var(--text-title);
+            background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.1) 0%, transparent 100%);
+            border-left-color: var(--accent);
+        }
+        .content-area {
+            flex: 1;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(8,8,12,0.8) 0%, rgba(4,4,6,0.98) 100%);
+        }
+        .panel-header {
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+        .panel-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px; font-weight: 700; color: var(--text-title);
+        }
+        .panel-subtitle {
+            font-size: 10px; color: var(--text-muted); margin-top: 2px;
+        }
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            gap: 8px;
+            padding-right: 4px;
+            padding-bottom: 10px;
+        }
+        .features-list::-webkit-scrollbar { width: 4px; }
+        .features-list::-webkit-scrollbar-track { background: transparent; }
+        .features-list::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.25); border-radius: 10px; }
+        .feature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border: 1px solid rgba(255,255,255,0.02);
+            background: rgba(255,255,255,0.01);
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        .feature-item:hover {
+            background: var(--bg-hover);
+            border-color: var(--border);
+            padding-left: 16px;
+        }
+        .feature-name {
+            font-size: 12px; font-weight: 600; color: var(--text-body);
+        }
+        .feature-desc {
+            font-size: 9px; color: var(--text-muted); margin-top: 2px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px; height: 18px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-sw {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--switch-off);
+            transition: .3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .slider-sw:before {
+            position: absolute; content: "";
+            height: 12px; width: 12px;
+            left: 2px; bottom: 2px;
+            background: #64748b;
+            transition: .3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 50%;
+        }
+        input:checked + .slider-sw {
+            background: rgba(var(--accent-rgb), 0.15);
+            border-color: var(--accent);
+        }
+        input:checked + .slider-sw:before {
+            transform: translateX(18px);
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+        .btn-action {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            color: var(--text-body);
+            padding: 6px 14px;
+            font-size: 10px; font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-action:hover {
+            border-color: var(--accent);
+            color: var(--text-title);
+            background: rgba(var(--accent-rgb), 0.08);
+            box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.2);
+        }
+        .status-footer {
+            margin-top: auto;
+            font-size: 9px; color: var(--text-muted);
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.02);
+            padding-top: 10px; flex-shrink: 0;
+        }
+        .status-dot {
+            width: 5px; height: 5px;
+            background: #10b981; border-radius: 50%;
+            box-shadow: 0 0 6px #10b981;
+            display: inline-block; margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        .tab-panel { display: none; flex-direction: column; height: 100%; }
+        .tab-panel.active { display: flex; }
+        .sidebar-footer {
+            margin-top: auto;
+            font-size: 9px; color: var(--text-muted);
+            text-align: center; opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+<div class="menu-container" id="menu">
+    <aside class="sidebar">
+        <div class="logo"><span class="xd">XD</span><span class="label">INTERFACE</span></div>
+        <button class="tab-btn active" onclick="switchTab('self')">Self</button>
+        <button class="tab-btn" onclick="switchTab('world')">World</button>
+        <button class="tab-btn" onclick="switchTab('vehicle')">Vehicle</button>
+        <button class="tab-btn" onclick="switchTab('weapon')">Armas</button>
+        <button class="tab-btn" onclick="switchTab('aim')">Aim</button>
+        <button class="tab-btn" onclick="switchTab('visual')">Visual</button>
+        <div class="sidebar-footer">XD PREMIUM EXECUTOR</div>
+    </aside>
+    <main class="content-area">
+        <!-- SELF TAB -->
+        <div id="tab-self" class="tab-panel active">
+            <div class="panel-header">
+                <h2 class="panel-title">Self</h2>
+                <p class="panel-subtitle">Funcoes do jogador local.</p>
+            </div>
+            <div class="features-list" id="self-list"></div>
+        </div>
+        <!-- WORLD TAB -->
+        <div id="tab-world" class="tab-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">World / Players</h2>
+                <p class="panel-subtitle">Interacoes com outros jogadores.</p>
+            </div>
+            <div class="features-list" id="world-list"></div>
+        </div>
+        <!-- VEHICLE TAB -->
+        <div id="tab-vehicle" class="tab-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Vehicle</h2>
+                <p class="panel-subtitle">Opcoes de veiculo.</p>
+            </div>
+            <div class="features-list" id="vehicle-list"></div>
+        </div>
+        <!-- WEAPON TAB -->
+        <div id="tab-weapon" class="tab-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Armas</h2>
+                <p class="panel-subtitle">Dar armas ao jogador.</p>
+            </div>
+            <div class="features-list" id="weapon-list"></div>
+        </div>
+        <!-- AIM TAB -->
+        <div id="tab-aim" class="tab-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Aim</h2>
+                <p class="panel-subtitle">Configuracoes de mira.</p>
+            </div>
+            <div class="features-list" id="aim-list"></div>
+        </div>
+        <!-- VISUAL TAB -->
+        <div id="tab-visual" class="tab-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Visual / ESP</h2>
+                <p class="panel-subtitle">Informacoes visuais e skins.</p>
+            </div>
+            <div class="features-list" id="visual-list"></div>
+        </div>
+        <div class="status-footer">
+            <span><span class="status-dot"></span>Conectado | XD Premium</span>
+            <span>Status: Indetectado</span>
+        </div>
+    </main>
+</div>
+<script>
+// ========== CONFIGURACAO DOS ITENS DO MENU ==========
+const menuData = {
+    self: {
+        buttons: [
+            {id: "reviver", name: "Reviver/Curar"},
+            {id: "colete", name: "Colete"},
+            {id: "algemar", name: "Algemar/Desalgemar"},
+            {id: "limpar", name: "Limpar Ferimentos"},
+            {id: "suicidio", name: "Suicidio"},
+            {id: "capuz", name: "Retirar Capuz"},
+            {id: "soltarh", name: "Soltar Do H"},
+        ],
+        toggles: [
+            {id: "godgod", name: "GodMode"},
+            {id: "flycaps", name: "No Clip (CapsLock)"},
+            {id: "tpway", name: "Tpway (U)"},
+            {id: "Invisivela", name: "Invisivel"},
+            {id: "infstamina", name: "Stamina Infinita"},
+            {id: "Ragdoll", name: "No Ragdoll"},
+            {id: "supersoco2", name: "Super Soco"},
+            {id: "antadm", name: "Anti Staff"},
+            {id: "furtivo", name: "Modo Furtivo"},
+            {id: "pulosapo", name: "Super Pulo"},
+            {id: "reviveraomorrer", name: "Reviver Ao Morrer"},
+        ]
+    },
+    world: {
+        buttons: [
+            {id: "tpplayer", name: "TP Ate o Player"},
+            {id: "copiarroupa", name: "Copiar Roupa"},
+            {id: "copiarped", name: "Copiar Ped"},
+            {id: "comerplayer", name: "Comer Player"},
+            {id: "cavalinho", name: "Cavalinho Player"},
+            {id: "spectar", name: "Spectar Player"},
+            {id: "explodirplayer", name: "Explodir Player"},
+            {id: "tazerplayer", name: "Tazer Player"},
+            {id: "fingerh", name: "Fingir H"},
+        ],
+        toggles: []
+    },
+    vehicle: {
+        buttons: [
+            {id: "reparar", name: "Reparar/Desvirar"},
+            {id: "deletarveh", name: "Deletar Veiculo"},
+            {id: "tunar", name: "Tunar no Maximo"},
+            {id: "destrancar", name: "Destrancar Veiculo"},
+        ],
+        toggles: [
+            {id: "vehrgb", name: "Veiculo RGB"},
+            {id: "HornBoost", name: "Boost Buzina"},
+            {id: "puduronaocair", name: "Nao Cair"},
+            {id: "freiaporra", name: "Freio de Aviao"},
+            {id: "AutoReparar", name: "Auto Reparar"},
+            {id: "opus", name: "Explodir Proximo (R)"},
+        ]
+    },
+    weapon: {
+        buttons: [
+            {id: "pistol_mk2", name: "Pistol Mk2"},
+            {id: "combatpistol", name: "Combat Pistol"},
+            {id: "pistol50", name: "Pistol .50"},
+            {id: "machinepistol", name: "Tec-9"},
+            {id: "specialcarbine_mk2", name: "Special Carbine Mk2"},
+            {id: "assaultrifle_mk2", name: "Assault Rifle Mk2"},
+            {id: "sniperrifle", name: "Sniper"},
+            {id: "rpg", name: "RPG"},
+            {id: "knife", name: "Knife"},
+            {id: "raycarbine", name: "Arma Lazer"},
+            {id: "pumpshotgun_mk2", name: "Pumpshotgun Mk2"},
+            {id: "stickybomb", name: "C4"},
+            {id: "removerarmas", name: "Remover Armas"},
+        ],
+        toggles: [
+            {id: "RECARGA", name: "Nao Recarregar"},
+            {id: "ammo", name: "Municao Infinita"},
+            {id: "safezone", name: "Bypass Safe Zone"},
+        ]
+    },
+    aim: {
+        buttons: [],
+        toggles: [
+            {id: "Silent", name: "Silent Aim"},
+            {id: "kaka2", name: "Spinbot"},
+            {id: "toogleaimbot", name: "Aimbot"},
+        ]
+    },
+    visual: {
+        buttons: [
+            {id: "bombadao", name: "Bombadao"},
+            {id: "thais", name: "Thais Carlo"},
+            {id: "alien", name: "Alien"},
+            {id: "palhaco", name: "Palhaco"},
+        ],
+        toggles: [
+            {id: "esp_nome_kaka", name: "ESP Name"},
+            {id: "espadm2", name: "ESP Staff"},
+            {id: "alertaadm", name: "Alerta Staff"},
+        ]
+    }
+};
+// ========== RENDERIZAR ITENS ==========
+function renderTab(tabId) {
+    const data = menuData[tabId];
+    const list = document.getElementById(tabId + '-list');
+    if (!list || !data) return;
+    list.innerHTML = '';
+
+    data.buttons.forEach(btn => {
+        const el = document.createElement('div');
+        el.className = 'feature-item';
+        el.innerHTML = `
+            <div><span class="feature-name">${btn.name}</span></div>
+            <button class="btn-action" onclick="sendAction('button','${btn.id}')">${btn.name}</button>
+        `;
+        list.appendChild(el);
+    });
+
+    data.toggles.forEach(tog => {
+        const el = document.createElement('div');
+        el.className = 'feature-item';
+        el.innerHTML = `
+            <div><span class="feature-name">${tog.name}</span></div>
+            <label class="switch">
+                <input type="checkbox" id="tog-${tog.id}" onchange="sendAction('toggle','${tog.id}')">
+                <span class="slider-sw"></span>
+            </label>
+        `;
+        list.appendChild(el);
+    });
+}
+
+// Renderizar todas as abas ao carregar
+Object.keys(menuData).forEach(tab => renderTab(tab));
+
+// ========== NAVEGACAO ==========
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+// ========== COMUNICACAO COM LUA ==========
+function sendAction(type, id) {
+    // Envia para o Lua via fetch (NUI callback simulation for DUI)
+    // Como e DUI, usamos window.location hash para sinalizar
+    window.location.hash = type + ':' + id + ':' + Date.now();
+}
+
+// ========== VISIBILIDADE ==========
+function showMenu() {
+    document.getElementById('menu').classList.add('visible');
+}
+function hideMenu() {
+    document.getElementById('menu').classList.remove('visible');
+}
+
+// Mostrar ao carregar
+showMenu();
+</script>
+</body>
+</html>
