@@ -435,10 +435,28 @@ function switchTab(tabId) {
 
 // ========== COMUNICACAO COM LUA ==========
 function sendAction(type, id) {
-    // Envia para o Lua via fetch (NUI callback simulation for DUI)
-    // Como e DUI, usamos window.location hash para sinalizar
-    window.location.hash = type + ':' + id + ':' + Date.now();
+    // Usa document.title para comunicar com Lua via DUI
+    document.title = type + ':' + id + ':' + Date.now();
 }
+
+// Receber mensagens do Lua via SendDuiMessage
+window.addEventListener('message', function(event) {
+    try {
+        var data = JSON.parse(event.data);
+        if (data.tab) {
+            // Trocar aba via Lua
+            var tabs = document.querySelectorAll('.tab-btn');
+            var panels = document.querySelectorAll('.tab-panel');
+            tabs.forEach(function(b) { b.classList.remove('active'); });
+            panels.forEach(function(p) { p.classList.remove('active'); });
+            var tabMap = {'self':0, 'world':1, 'vehicle':2, 'weapon':3, 'aim':4, 'visual':5};
+            var idx = tabMap[data.tab] || 0;
+            if (tabs[idx]) tabs[idx].classList.add('active');
+            var panel = document.getElementById('tab-' + data.tab);
+            if (panel) panel.classList.add('active');
+        }
+    } catch(e) {}
+});
 
 // ========== VISIBILIDADE ==========
 function showMenu() {
